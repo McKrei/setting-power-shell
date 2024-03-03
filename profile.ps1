@@ -1,5 +1,7 @@
 oh-my-posh init pwsh --config "C:\Users\legion\AppData\Local\Programs\oh-my-posh\themes\mckrei.json"| Invoke-Expression
-function ipy { python -m IPython }
+function ipy { python -m IPython $args}
+
+function py { python $args }
 
 
 function run_uvicorn { uvicorn main:app --port 4422 --reload }
@@ -72,6 +74,10 @@ $projects = @{
             "path" = "C:\Users\legion\projects\supwb"
             "alias" = "supwb"
         }
+        "powershell" = @{
+            "path" = "C:\Users\legion\projects\MY PKG\power shell"
+            "alias" = "powershell"
+        }
     }
 }
 function project {
@@ -95,6 +101,24 @@ function project {
         "update" {
             code $PROFILE
         }
+        "cd" {
+            # Смена текущего каталога на каталог указанного проекта
+            $found = $false
+            foreach ($domain in $projects.Keys) {
+                foreach ($project in $projects[$domain].Values) {
+                    if ($project.alias -eq $alias) {
+                        Set-Location $project.path
+                        $found = $true
+                        break
+                    }
+                }
+                if ($found) { break }
+            }
+            if (-not $found) {
+                Write-Host "Проект с алиасом '$alias' не найден."
+            }
+        }
+
         "ls" {
             # Вывод списка проектов с информацией о сервере, если есть
             $projects.Keys | ForEach-Object {
